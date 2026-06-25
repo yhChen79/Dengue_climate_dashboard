@@ -13,9 +13,10 @@ gs4_auth(path = "dengue-project-eic02-63f1bd69bb33.json")
 ss_url <- "https://docs.google.com/spreadsheets/d/1f-Vh9YbN4MMqgN3K72-jPg9dDXzISSiQY00AW20TRds/edit"
 
 cat("\n=== 步驟 1: 從 Google Sheets 讀取輸入資料 ===\n")
-# 氣象要素、測站資訊
+# 氣象要素、測站資訊、大疫情年份設定
 climate_items <- read_sheet(ss_url, sheet = "climate_items")
 station_id    <- read_sheet(ss_url, sheet = "station_id")
+big_epi_year_ref <- read_sheet(ss_url, sheet = "big_epi_year")
 
 
 # ==============================================================================
@@ -144,20 +145,40 @@ df_noaa_final <- nino_data_raw %>%
 cat("✅ NOAA 數據截取與清洗完成\n")
 
 
-# ==============================================================================
-# PART 3. 資料橫向合併 (CWA + NOAA)
-# ==============================================================================
-cat("\n=== 步驟 3: 執行資料橫向合併 (以 Year 和 Month 對齊) ===\n")
+# ==========================================
+# 4. 資料橫向合併與疫情年份三階段分類 (epi_year)
+# ==========================================
+cat("\n進行資料合併與疫情年份分類...\n")
 
-# 使用 left_join，以 CWA 資料為主體，合併對應年月份的 NOAA 指數
-df_merged_all <- df_cwa_final %>%
+# 確保對照表的資料型態與主表一致
+big_epi_year_ref <- big_epi_year_ref %>%
+  mutate(
+    city = as.character(city),
+    year = as.integer(year),
+    is_big = "Yes" # 標記在表內的都是大流行
+  )
+
+# 先合併 CWA 與 NOAA
+df_merged_temp <- df_cwa_final %>%
   left_join(df_noaa_final, by = c("year", "month"))
 
-cat("🎉 全部資料合併完成！\n")
-cat(paste("最終資料列數：", nrow(df_merged_all), "列\n"))
-cat(paste("欄位清單：\n", paste(colnames(df_merged_all), collapse = ", "), "\n"))
+# 年份分類邏輯
+df_merged_all <- df_merged_temp %>%
+  mutate(city = as.character(city)) %>% 
+  left_join(big_epi_year_ref, by = c("city", "year")) %>%
+  mutate(
+    epi_year = case_when(
+      year == current_year ~ "this_year",   # 1. 如果年份等於今年，歸類為 this_year
+      is_big == "Yes"      ~ "big",         # 2. 如果在對照表內有對到，歸類為 big
+      TRUE                 ~ "small"        # 3. 其餘所有年份，通通歸類為 small
+    )
+  ) %>%
+  select(-is_big) # 移除暫存欄位
 
 
-cat("\n=== 步驟 4: 將合併後的最終大表寫回 Google Sheets ===\n")
+# ==========================================
+# 5. 上傳覆寫回 Google Sheets
+# ==========================================
+cat("\n=== 將合併後的最終大表寫回 Google Sheets ===\n")
 sheet_write(df_merged_all, ss = ss_url, sheet = "merged_data")
 
