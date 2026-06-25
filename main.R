@@ -5,8 +5,6 @@ library(tidyr)
 library(purrr)
 library(googlesheets4)
 
-setwd("V:/2-26-怡諠/114年計畫_怡諠主持/Dengue model/CWA_ENSO_data_figure")
-
 cat("=== 步驟 0: Google 試算表雲端身分驗證 ===\n")
 # 1. 金鑰
 gs4_auth(path = "dengue-project-eic02-63f1bd69bb33.json")
