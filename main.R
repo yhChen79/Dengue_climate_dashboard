@@ -168,9 +168,9 @@ df_merged_all <- df_merged_temp %>%
   left_join(big_epi_year_ref, by = c("city", "year")) %>%
   mutate(
     epi_year = case_when(
-      year == current_year ~ "this_year",   # 1. 如果年份等於今年，歸類為 this_year
-      is_big == "Yes"      ~ "big",         # 2. 如果在對照表內有對到，歸類為 big
-      TRUE                 ~ "small"        # 3. 其餘所有年份，通通歸類為 small
+      year == current_year ~ paste0(current_year, "年"),   # 1. 如果年份等於今年，歸類為 this_year
+      is_big == "Yes"      ~ "大疫情年份",         # 2. 如果在對照表內有對到，歸類為 big
+      TRUE                 ~ "非大疫情年份"        # 3. 其餘所有年份，通通歸類為 small
     )
   ) %>%
   select(-is_big) # 移除暫存欄位
