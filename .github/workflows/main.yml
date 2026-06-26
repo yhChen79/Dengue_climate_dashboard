@@ -20,7 +20,7 @@ jobs:
 
       - name: 3. 安裝需要的 R 套件
         run: |
-          Rscript -e 'install.packages(c("httr", "jsonlite", "tidyverse", "purrr", "googlesheets4"))'
+          Rscript -e 'install.packages(c("httr", "jsonlite", "tidyverse", "lubridate", "purrr", "googlesheets4"))'
 
       - name: 4. 從保險箱取出 Google 金鑰並還原成檔案
         run: |
