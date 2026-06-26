@@ -1,7 +1,6 @@
 library(httr)
 library(jsonlite)
-library(dplyr)
-library(tidyr)
+library(tidyverse)
 library(purrr)
 library(googlesheets4)
 
@@ -175,10 +174,39 @@ df_merged_all <- df_merged_temp %>%
   ) %>%
   select(-is_big) # 移除暫存欄位
 
-
-# ==========================================
-# 5. 上傳覆寫回 Google Sheets
-# ==========================================
 cat("\n=== 將合併後的最終大表寫回 Google Sheets ===\n")
 sheet_write(df_merged_all, ss = ss_url, sheet = "merged_data")
 
+
+# ==========================================
+# 5. 登革熱病例數資料
+# ==========================================
+
+# 年月連續
+full_list <- crossing(
+  city = c("tainan", "kao"),  
+  year = 2002:current_year,
+  month = 1:12
+)
+
+# OpenData [登革熱1998年起每日確定病例統計] 下載網址
+dengue_case_csv_url <- "https://od.cdc.gov.tw/eic/Dengue_Daily.csv"
+dengue_case_linelist <- read.csv(dengue_case_csv_url, fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+
+# 整理資料
+dengue_case <- dengue_case_linelist %>%
+    filter(是否境外移入 == "否" & 居住縣市 %in% c("台南市","高雄市")) %>%
+    mutate(date = coalesce(na_if(個案研判日, ""), na_if(通報日, "")),
+           year = year(as.Date(date)),
+           month = month(as.Date(date)),
+           city = case_when(居住縣市 == "台南市" ~ "tainan",
+                               居住縣市 == "高雄市" ~ "kao")) %>%
+    count(year, month, city, name = "case")
+
+dengue_case_data <- full_list %>%
+    left_join(dengue_case, by = c("city", "year", "month")) %>%
+    mutate(case = coalesce(case, 0)) %>%
+    filter(year < current_year | (year == current_year & month <= current_month))
+
+# 匯出到 google sheet
+sheet_write(dengue_case_data, ss = ss_url, sheet = "dengue_data")
