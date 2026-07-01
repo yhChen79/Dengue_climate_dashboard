@@ -12,7 +12,7 @@ https://datastudio.google.com/reporting/194cc41a-67fd-4e40-8db2-6180d5865fc4/pag
 
 `臺灣氣象署(CWA)公開資料` https://codis.cwa.gov.tw/api/station
 
-`美國國家海洋暨大氣總署(NOAA)公開資料` "https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices"
+`美國國家海洋暨大氣總署(NOAA)公開資料` https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices
 
 
 ## 技術專案特點
