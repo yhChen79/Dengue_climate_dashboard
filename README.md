@@ -2,6 +2,11 @@
 ## 專案目標
 本專案旨在建立一個每日自動更新的公開網頁儀表板，整合臺灣疾病管制署 (CDC)、臺灣氣象署 (CWA) 與美國國家海洋暨大氣總署 (NOAA) 的跨領域公開資料。透過動態趨勢圖表，比較登革熱大疫情年份及非大疫情年份的氣候趨勢。
 
+
+## 前端網頁-趨勢圖儀表板
+https://datastudio.google.com/reporting/194cc41a-67fd-4e40-8db2-6180d5865fc4/page/XpH2F?s=h3F6rIgoM2o
+
+
 ## 資料來源
 `臺灣疾病管制署(CDC)公開資料` https://od.cdc.gov.tw/eic/Dengue_Daily.csv
 
@@ -40,3 +45,4 @@
 `merged_data` 彙整年、月、縣市、氣象資料、海溫資料
 
 `dengue_case_data` 每月本土登革熱病例數
+
